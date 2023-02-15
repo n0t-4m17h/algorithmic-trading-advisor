@@ -1,15 +1,16 @@
 # Algorithmic Trading Bot
-A simple Python bot that provides investment decisions/recommendations via quantitative trading. 
-
-**Requirements**
-- ``` cd ``` into the main directory and run ```pip install -r requirements.txtt``` to install the required package versions. 
-- Must also create an account with IEX Cloud's [Apperate](https://iexcloud.io/cloud-login#/register) software, to gain access to the real-time data for free, but only for 30 days. 
+A simple Python bot that provides investment recommendations via quantitative trading strategies. 
 <br/>
 
-#### Features / Investing Strategies 
+**Requirements**
+- ``` cd ``` into the main directory and run ```pip install -r requirements.txt``` to install the required package versions. 
+- Must also create an account with IEX Cloud's [Apperate](https://iexcloud.io/cloud-login#/register) software, to gain access to the real-time data for free, but only for 30 days *([Alpha Vintage](https://www.alphavantage.co/) supposedly provides free real-time data via their API, which is worth looking into)*. 
+<br/>
+
+### Features / Investing Strategies 
 *(in simple terms)*
 - Equal Weighted [S&P/ASX] Index Fund:
-    - hi
+    - {summary}
 - Momentum trading:
     - Investing in stocks that have increased in price the most. 
     - We assess the price changes over the last 12 months, excluding the past month, and select the stock with the highest recent price return over the last year, as the preferred investment.

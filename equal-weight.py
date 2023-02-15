@@ -19,8 +19,11 @@ from secret import IEX_CLOUD_API_TOKEN
 ############################
 ##### HELPER functions #####
 ############################
-def batchAPIchunks(alist, n):
-    """ Yield successive n-sized chunks from lst."""
+def chunks(alist, n):
+    '''
+    Yield successive n-sized chunks from a list
+    (i.e. breakup a list into groups of size n)
+    '''
     for i in range(0, len(alist), n):
         yield alist[i:i + n]
 
@@ -33,28 +36,50 @@ def batchAPIchunks(alist, n):
 def initDataFrame():
     '''
         1. Import the list of tickers
-        2. Retrieve the free IEX Cloud API token (for authentication)
-        3. Make the Batch API requests to [quickly] retrieve the necessary information
-        4. Return the final data frame
+        2. Make the Batch API requests to [quickly] retrieve the necessary information
+        3. Return the final data frame
     '''
     global TICKERS; TICKERS = pd.read_csv('sp-500-tickers.csv')
     # These are the data columns for each ticker
     cols = ['Ticker', 'Price', 'Market Capitalization', 'Number Of Shares to Buy']
+
+    tickersAsStrings = TICKERS['Ticker']
     # Establish the above columns as the data sets basis
     completeDataFrame = pd.DataFrame(columns=cols)
-    i = 0
-    for ticker in TICKERS['Ticker']: # [:5]
-        api_url = f'https://api.iex.cloud/v1/data/core/quote/{ticker}?token={IEX_CLOUD_API_TOKEN}'
-        # Get the specific stock's information
-        data = requests.get(api_url).json()[0]
-        newRow = pd.DataFrame([ticker, data['latestPrice'], data['marketCap'], 'N/A'], columns=[i], index=cols).T # data['companyName']
-        # append the current stock's row of info to the data set
-        completeDataFrame = pd.concat([completeDataFrame, newRow], ignore_index=True)
-        # print(completeDataFrame['Ticker'][i])
-        i += 1
+    step = 100
+    # BATCH API METHOD: Make batch calls by groups of 100 stocks (API calls are approx. 40secs/group == approx. 3mins ovrl)
+    for i in range(0, len(tickersAsStrings), step):
+        aTickerGroup = tickersAsStrings[i : i + step]
+        tickGroupForCall = ','.join(aTickerGroup)
+        # Get the current batch of stock's informatio
+        batchAPIurl = f'https://api.iex.cloud/v1/data/core/quote/{tickGroupForCall}?token={IEX_CLOUD_API_TOKEN}'
+        data = requests.get(batchAPIurl).json()
+        # print(data[0]['symbol']) # print first stock of each group
+        row = 0
+        for ticker in data:
+            # append each stock's info, of the current group, to the mega data frame
+            newRow = pd.DataFrame([ticker['symbol'], ticker['latestPrice'], ticker['marketCap'], 'N/A'], columns=[row], index=cols).T # data['companyName']
+            completeDataFrame = pd.concat([completeDataFrame, newRow], ignore_index=True)
+            row += 1
+
     return completeDataFrame
 
 
+def howManySharesToBuy(dataFrame: pd.DataFrame, size: int):
+    '''
+        1.
+    '''
+    pass
+
+
+
 if __name__ == '__main__':
-    dataFrame = initDataFrame()
-    print(dataFrame)
+    try:
+        dataFrame = initDataFrame()
+        print("Mega dataframe of stocks acquired")
+        
+        portfolioValue = int(input("Enter the value of your portfolio:\n>> "))
+        howManySharesToBuy(dataFrame, portfolioValue)
+
+    except Exception as e:
+        print(f"ERROR: {e}")

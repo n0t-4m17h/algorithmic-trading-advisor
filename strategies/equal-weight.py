@@ -5,6 +5,7 @@ constituent you should purchase to get an equal-weight version of the index fund
 S&P 500 market weights the TICKERS by market capitalisation, thus larger companies have a larger weight
 in the index.
 '''
+# from __future__ import absolute_import
 
 import numpy as np # fast numerical computation
 import pandas as pd # for tabular data, and dataframes (which hold tabular data)
@@ -14,6 +15,7 @@ import math
 # import yahooquery as yq
 # import matplotlib.pyplot as plt
 from secret import IEX_CLOUD_API_TOKEN
+
 
 
 ############################
@@ -39,7 +41,7 @@ def initDataFrame():
         2. Make the Batch API requests to [quickly] retrieve the necessary information
         3. Return the final data frame
     '''
-    global TICKERS; TICKERS = pd.read_csv('sp-500-tickers.csv')
+    global TICKERS; TICKERS = pd.read_csv('../sp-500-tickers.csv')
     # These are the data columns for each ticker
     cols = ['Ticker', 'Price', 'Market Capitalization', 'Number Of Shares to Buy']
 
@@ -75,11 +77,16 @@ def howManySharesToBuy(dataFrame: pd.DataFrame, size: int):
 
 if __name__ == '__main__':
     try:
+        print("Fetching mega dataframe of stocks...", end=" ")
         dataFrame = initDataFrame()
-        print("Mega dataframe of stocks acquired")
+        print("Acquired!\n")
         
-        portfolioValue = int(input("Enter the value of your portfolio:\n>> "))
-        howManySharesToBuy(dataFrame, portfolioValue)
+        portfolioValue = float(input('''
+                                        Enter the value of your portfolio:\n
+                                        (aggregation of the value of each individual stock)\n
+                                        >> 
+                                    '''))
+        # howManySharesToBuy(dataFrame, portfolioValue)
 
     except Exception as e:
         print(f"ERROR: {e}")

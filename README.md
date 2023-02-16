@@ -12,13 +12,15 @@ A simple Python bot that provides investment recommendations via quantitative tr
 ### Execution
 1. ```cd``` into main dir, then replace '*sp-500-tickers.csv*' with the csv file of your personal investments.
 2. Then run ```python3 strategies/<strat-of-your-choice>.py```
-    - *note: if running a strat file via Jupiter Notebook, may need to concat "../" to the front of the csv filename*
+    - *note: if running a strat file via Jupiter Notebook, may need to concat "../" to the head, else remove it*
 <br/>
 
 ### Features / Investing Strategies 
 *(in simple terms)*
-- **Equal Weighted [S&P/ASX] Index Fund:**
-    - {summary}
+- **Equal Weighted Index Fund:**
+    - Most stock indexes are indexed via market capitalisation or price-weighted, where the index weighs / gives more importance to stocks to with either high market caps or as per their price. 
+    - Building and Equal-Weight index will assign all stocks equal value and equal investment consideration. 
+        - This means that if a stock in an index fund, has a price increase, shares will be sold in order to equally balance out the index fund, and vice versa. 
 - **Momentum trading:**
     - Investing in stocks that have increased in price the most. 
     - We assess the price changes over the last 12 months, excluding the past month, and select the stock with the highest recent price return over the last year, as the preferred investment.
@@ -29,6 +31,10 @@ A simple Python bot that provides investment recommendations via quantitative tr
     - "You must value the business in order to value the stock." ~ Charlie Munger.
 
 <br/>
+
+#### Known Issues
+- **Equal Weighted**
+    - some tickers are lost during the API call, so their 'Market Cap' value would be empty in the output files. Not to worry though, as this is not used in the calculations.
 
 #### Possible Future Improvements
 - uhh...

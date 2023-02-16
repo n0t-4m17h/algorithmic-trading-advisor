@@ -1,16 +1,12 @@
 '''
 This script will accept the value of your portfolio and tell you how many shares of each S&P 500
 constituent you should purchase to get an equal-weight version of the index fund.
-
-S&P 500 market weights the TICKERS by market capitalisation, thus larger companies have a larger weight
-in the index.
 '''
-# from __future__ import absolute_import
 
-import numpy as np # fast numerical computation
-import pandas as pd # for tabular data, and dataframes (which hold tabular data)
-import requests # for HTTP requests
-import xlsxwriter # save Excel docs via python code
+import numpy as np
+import pandas as pd
+import requests
+import xlsxwriter
 import math
 # import yahooquery as yq
 # import matplotlib.pyplot as plt
@@ -18,19 +14,9 @@ from secret import IEX_CLOUD_API_TOKEN
 
 
 
-############################
-##### HELPER functions #####
-############################
-def chunks(alist, n):
-    '''
-    Yield successive n-sized chunks from a list
-    (i.e. breakup a list into groups of size n)
-    '''
-    for i in range(0, len(alist), n):
-        yield alist[i:i + n]
-
-
-
+# NOTE: if running in Jupiter Notebook, concat "../" to the head, else remove it
+FILEPATH = '../sp-500-tickers.csv'
+OUTPUTPATH = '../output/rec-equal-weight.xlsx'
 
 ##########################
 ##### CORE functions #####
@@ -41,15 +27,15 @@ def initDataFrame():
         2. Make the Batch API requests to [quickly] retrieve the necessary information
         3. Return the final data frame
     '''
-    global TICKERS; TICKERS = pd.read_csv('../sp-500-tickers.csv')
+    global TICKERS; TICKERS = pd.read_csv(FILEPATH)
     # These are the data columns for each ticker
-    cols = ['Ticker', 'Price', 'Market Capitalization', 'Number Of Shares to Buy']
+    cols = ['Ticker', 'Price', 'Market Cap', 'No. of Shares to Buy']
 
     tickersAsStrings = TICKERS['Ticker']
     # Establish the above columns as the data sets basis
     completeDataFrame = pd.DataFrame(columns=cols)
     step = 100
-    # BATCH API METHOD: Make batch calls by groups of 100 stocks (API calls are approx. 40secs/group == approx. 3mins ovrl)
+    # BATCH API METHOD: Make batch calls by groups of 100 stocks (API calls are approx. 40secs/group == approx. 3mins ovrl, down from 8.5mins w/out batch calls)
     for i in range(0, len(tickersAsStrings), step):
         aTickerGroup = tickersAsStrings[i : i + step]
         tickGroupForCall = ','.join(aTickerGroup)
@@ -63,30 +49,75 @@ def initDataFrame():
             newRow = pd.DataFrame([ticker['symbol'], ticker['latestPrice'], ticker['marketCap'], 'N/A'], columns=[row], index=cols).T # data['companyName']
             completeDataFrame = pd.concat([completeDataFrame, newRow], ignore_index=True)
             row += 1
-
+        # break
     return completeDataFrame
 
 
-def howManySharesToBuy(dataFrame: pd.DataFrame, size: int):
+
+def calcSharesToBuy(dataFrame: pd.DataFrame, portValue: float):
     '''
-        1.
+        Given the portfolio's value (how to calc it -> https://www.sapling.com/5872650/calculate-portfolio-value),
+        use the established formula to find the number of shares to buy, per stock. 
     '''
-    pass
+    # Since this is an equal-weight index, each investment will have the same "position size", which
+    #       will determine how much you should invest in the stock. 
+    posSize = portValue / len(dataFrame.index)
+    # for each stock, the no. of shares to buy is the position size divided by the current market price
+    for i in range(0, len(dataFrame.index)):
+        # Calc the num of shares to buy of the current stock via each stock's price, and then assign the value to the empty column.
+        #       (better to floor instead of ceiling, because you don't want to end up buying more than you can afford i.e. higher risk)
+        numToBuy = math.floor(posSize / dataFrame.loc[i, 'Price'])
+        dataFrame.loc[i, 'No. of Shares to Buy'] = numToBuy
 
 
 
+def outputAsExcel(dataFrame: pd.DataFrame):
+    '''
+        Given the completed dataFrame, output it into an excel file in a user-friendly fashion.
+    '''
+    xlWriter = pd.ExcelWriter(OUTPUTPATH, engine='xlsxwriter', )
+    dataFrame.to_excel(xlWriter, sheet_name='Recommended Investments', index=False)
+
+    workbook = xlWriter.book
+    worksheet = xlWriter.sheets['Recommended Investments']
+    
+    # Set formatting per column
+    tickerFormat = workbook.add_format({'bold': True})
+    priceFormat = workbook.add_format({'num_format': '$0.00'})
+    mrktCapFormat = workbook.add_format({'num_format': '$#,##0'})
+
+    worksheet.set_column('A:A', 9, tickerFormat)
+    worksheet.set_column('B:B', 9, priceFormat)
+    worksheet.set_column('C:C', 18, mrktCapFormat)
+    worksheet.set_column('D:D', 18, None)
+
+    xlWriter.close()
+
+
+
+#########################
+##### MAIN function #####
+#########################
 if __name__ == '__main__':
     try:
         print("Fetching mega dataframe of stocks...", end=" ")
         dataFrame = initDataFrame()
         print("Acquired!\n")
-        
-        portfolioValue = float(input('''
-                                        Enter the value of your portfolio:\n
-                                        (aggregation of the value of each individual stock)\n
-                                        >> 
-                                    '''))
-        # howManySharesToBuy(dataFrame, portfolioValue)
+
+        # initDataFrame() takes a long time, so keep this in a loop
+        portfolioValue = 0.0
+        while True:
+            try: 
+                portfolioValue = float(input("Enter the value of your portfolio:\n(aggregation of the value of each individual stock)\n>> "))
+                break
+            except ValueError as VE:
+                print("Please enter a number!\n")
+        print(f"Portfolio value '${portfolioValue}' recieved!")
+        calcSharesToBuy(dataFrame, portfolioValue)
+
+        print("\nGenerating Excel file...")
+        outputAsExcel(dataFrame)
+        print("\nstonks 📈 !!")
 
     except Exception as e:
         print(f"ERROR: {e}")

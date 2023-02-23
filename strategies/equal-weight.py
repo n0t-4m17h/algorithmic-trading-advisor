@@ -3,10 +3,8 @@ This script will accept the value of your portfolio and tell you how many shares
 constituent you should purchase to get an equal-weight version of the index fund.
 '''
 
-import numpy as np
 import pandas as pd
 import requests
-import xlsxwriter
 import math
 # import yahooquery as yq
 # import matplotlib.pyplot as plt
@@ -25,7 +23,7 @@ def initDataFrame():
     '''
         1. Import the list of tickers
         2. Make the Batch API requests to [quickly] retrieve the necessary information
-        3. Return the final data frame
+        3. Store into a dataframe and return it
     '''
     global TICKERS; TICKERS = pd.read_csv(FILEPATH)
     # These are the data columns for each ticker
@@ -35,7 +33,7 @@ def initDataFrame():
     # Establish the above columns as the data sets basis
     completeDataFrame = pd.DataFrame(columns=cols)
     step = 100
-    # BATCH API METHOD: Make batch calls by groups of 100 stocks (API calls are approx. 40secs/group == approx. 3mins ovrl, down from 8.5mins w/out batch calls)
+    # BATCH API METHOD: Make batch calls by groups of 100 stocks (API calls are total approx. 2mins ovrl, down from 8.5mins w/out batch calls)
     for i in range(0, len(tickersAsStrings), step):
         aTickerGroup = tickersAsStrings[i : i + step]
         tickGroupForCall = ','.join(aTickerGroup)
@@ -100,7 +98,7 @@ def outputAsExcel(dataFrame: pd.DataFrame):
 #########################
 if __name__ == '__main__':
     try:
-        print("Fetching mega dataframe of stocks...", end=" ")
+        print("Fetching mega dataframe of stock quotes...", end=" ")
         dataFrame = initDataFrame()
         print("Acquired!\n")
 

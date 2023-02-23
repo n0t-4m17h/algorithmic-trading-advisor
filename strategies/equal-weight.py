@@ -1,6 +1,6 @@
 '''
 This script will accept the value of your portfolio and tell you how many shares of each S&P 500
-constituent you should purchase to get an equal-weight version of the index fund.
+constituent you should purchase to get a purely equal-weight version of the index fund.
 '''
 
 import pandas as pd
@@ -8,6 +8,7 @@ import requests
 import math
 # import yahooquery as yq
 # import matplotlib.pyplot as plt
+
 from secret import IEX_CLOUD_API_TOKEN
 
 
@@ -15,6 +16,7 @@ from secret import IEX_CLOUD_API_TOKEN
 # NOTE: if running in Jupiter Notebook, concat "../" to the head, else remove it
 FILEPATH = '../sp-500-tickers.csv'
 OUTPUTPATH = '../output/rec-equal-weight.xlsx'
+
 
 ##########################
 ##### CORE functions #####

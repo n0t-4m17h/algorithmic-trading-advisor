@@ -3,7 +3,7 @@
 A python bot that automates large data analysis to provide investment recommendations via 3 quantitative trading strategies.
 <br/>
 
-**Requirements** 📝
+#### Requirements 📝
 - ``` cd ``` into the main project directory and run ```pip3 install -r requirements.txt``` to install the required package versions. 
     - also, python 3.8.10 minimum is required.
 - Must also create an account with IEX Cloud's [Apperate](https://iexcloud.io/cloud-login#/register) software, to gain access to the real-time data for free via an api token, but only for 30 days.
@@ -19,13 +19,11 @@ A python bot that automates large data analysis to provide investment recommenda
 - **Momentum trading:**
     - Investing in stocks that have increased in price the most. 
     - We quantitatively assess the price changes over the last 12 months, excluding the past month, and select the stock with the highest recent price return over the last year, as the most preferred investment.
-<br/>
 - **Value trading:**
     - Investing in stocks that are trading below their true value, i.e. appears undervalued, relative to their business values, such as earnings. 
     - A concept called 'Multiples' is used to quantitatively estimate how valuable a company is.
         - P/E Ratio is a common example of a Multiple.  
     - "You must value the business in order to value the stock." ~ Charlie Munger.
-<br/>
 - **Equal Weighted Index Fund:**
     - Most stock indexes are indexed via market capitalisation or price-weighted, where the index weighs / gives more importance to stocks to with either high market caps or as per their price. 
     - Building and Equal-Weight index will assign all stocks equal value and equal investment consideration. 

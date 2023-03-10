@@ -6,6 +6,8 @@ shares with the highest momentum from the past year, you should purchase.
 import pandas as pd
 import requests
 import math
+# import yahooquery as yq
+# import matplotlib.pyplot as plt
 from scipy.stats import percentileofscore as ptScore
 import statistics
 

@@ -14,7 +14,7 @@ A python bot that automates large data analysis to provide investment recommenda
 2. Then run ```python3 strategies/momentum.py```, or run it via Jupyter Notebook (recommended)
 <br/>
 
-### nvesting Strategy 📈
+### Investing Strategy 📈
 *(in simple terms)*
 - **Momentum trading:**
     - Investing in stocks that have increased in price the most. 
